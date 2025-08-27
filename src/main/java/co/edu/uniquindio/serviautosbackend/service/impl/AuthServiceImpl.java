@@ -11,16 +11,20 @@ import org.springframework.stereotype.Service;
 public class AuthServiceImpl implements AuthService {
 
     @Autowired
-    private AuthRepository repository;
+    private AuthRepository authRepository;
 
     @Override
     public User createUser(UserCreationDTO user) {
         User newUser = new User();
         newUser.setName(user.name());
         newUser.setLastName(user.lastName());
-        newUser.setPhoneNumber(user.phoneNumber());
+        newUser.setPhone(user.phone());
+        newUser.setAddress(user.address());
+        newUser.setEmail(user.email());
+        newUser.setPassword(user.password());
+        newUser.setRegisterDate(user.registerDate());
 
-        repository.save(newUser);
+        authRepository.save(newUser);
         return newUser;
     }
 

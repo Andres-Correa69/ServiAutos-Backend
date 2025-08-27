@@ -1,40 +1,37 @@
 package co.edu.uniquindio.serviautosbackend.domain.models;
 
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.LocalDateTime;
-
-@Document("users")
+@Data
+@Document("clients")
 @Getter
 @Setter
 @NoArgsConstructor
-public class User {
+public class Client {
 
     @Id
     private String id;
     private String name;
     private String lastName;
-    private String phone;
-    private String address;
+    private String document;
     private String email;
-    private String password;
-    private LocalDateTime registerDate;
+    private String address;
+    private String phone;
 
-    public User(String id, String name, String lastName,
-                String phone, String address, String email, String password, LocalDateTime registerDate) {
+    public Client(String id, String name, String lastName, String document, String email, String address, String phone) {
         this.id = id;
         this.name = name;
         this.lastName = lastName;
-        this.phone = phone;
-        this.address = address;
+        this.document = document;
         this.email = email;
-        this.password = password;
-        this.registerDate = registerDate;
+        this.address = address;
+        this.phone = phone;
     }
 
     public String getId() {
@@ -61,20 +58,12 @@ public class User {
         this.lastName = lastName;
     }
 
-    public String getPhone() {
-        return phone;
+    public String getDocument() {
+        return document;
     }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
+    public void setDocument(String document) {
+        this.document = document;
     }
 
     public String getEmail() {
@@ -85,19 +74,19 @@ public class User {
         this.email = email;
     }
 
-    public String getPassword() {
-        return password;
+    public String getAddress() {
+        return address;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setAddress(String address) {
+        this.address = address;
     }
 
-    public LocalDateTime getRegisterDate() {
-        return registerDate;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setRegisterDate(LocalDateTime registerDate) {
-        this.registerDate = LocalDateTime.now();
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 }
