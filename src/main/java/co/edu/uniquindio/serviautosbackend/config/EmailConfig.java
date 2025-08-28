@@ -37,7 +37,7 @@ public class EmailConfig {
         props.put("mail.smtp.starttls.enable", "true");
         props.put("mail.smtp.starttls.required", "true");
         props.put("mail.smtp.ssl.trust", "smtp.gmail.com");
-        props.put("mail.debug", "true");
+        props.put("mail.debug", "false");
 
         return mailSender;
     }

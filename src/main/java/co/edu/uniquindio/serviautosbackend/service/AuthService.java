@@ -5,4 +5,5 @@ import co.edu.uniquindio.serviautosbackend.dto.UserCreationDTO;
 
 public interface AuthService {
     User createUser(UserCreationDTO user);
+    User validateLogin(String email, String password) throws Exception;
 }

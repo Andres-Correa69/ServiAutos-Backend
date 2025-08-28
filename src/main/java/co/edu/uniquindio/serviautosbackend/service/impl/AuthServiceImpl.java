@@ -7,6 +7,8 @@ import co.edu.uniquindio.serviautosbackend.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class AuthServiceImpl implements AuthService {
 
@@ -26,6 +28,18 @@ public class AuthServiceImpl implements AuthService {
 
         authRepository.save(newUser);
         return newUser;
+    }
+
+    @Override
+    public User validateLogin(String email, String password) throws Exception {
+        Optional<User> user = authRepository.findByEmail(email);
+        if (user.isEmpty()) {
+            throw new Exception("Usuario no encontrado");
+        }
+        if (!user.get().getPassword().equals(password)) {
+            throw new Exception("Contraseña incorrecta");
+        }
+        return user.get();
     }
 
 }
