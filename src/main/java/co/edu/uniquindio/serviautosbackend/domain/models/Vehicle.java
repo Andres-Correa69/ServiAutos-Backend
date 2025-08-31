@@ -20,12 +20,14 @@ public class Vehicle {
     private String licencePlate;
     private String brand;
     private String model;
+    private String clientId;
 
-    public Vehicle(String id, String licencePlate, String brand, String model) {
+    public Vehicle(String id, String licencePlate, String brand, String model, String clientId) {
         this.id = id;
         this.licencePlate = licencePlate;
         this.brand = brand;
         this.model = model;
+        this.clientId = clientId;
     }
 
     public String getId() {
@@ -58,5 +60,13 @@ public class Vehicle {
 
     public void setModel(String model) {
         this.model = model;
+    }
+
+    public String getClientId() {
+        return clientId;
+    }
+
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
     }
 }

@@ -90,7 +90,7 @@ public class AuthController {
             User createdUser = authService.createUser(pendingUser);
 
             verificationService.removePendingUser(email);
-            
+
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(new ResponseDTO<>(false, "Usuario creado exitosamente", createdUser));
         } catch (Exception e) {

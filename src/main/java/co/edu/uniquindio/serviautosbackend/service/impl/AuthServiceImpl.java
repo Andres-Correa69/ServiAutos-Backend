@@ -31,7 +31,7 @@ public class AuthServiceImpl implements AuthService {
         newUser.setPhone(user.phone());
         newUser.setAddress(user.address());
         newUser.setEmail(user.email());
-        newUser.setPassword(user.password());
+        newUser.setPassword(passwordEncoder.encode(user.password()));
         newUser.setRegisterDate(user.registerDate());
 
         authRepository.save(newUser);
@@ -44,7 +44,8 @@ public class AuthServiceImpl implements AuthService {
         if (user.isEmpty()) {
             throw new Exception("Usuario no encontrado");
         }
-        if (!user.get().getPassword().equals(password)) {
+        // ✅ Comparar usando BCrypt
+        if (!passwordEncoder.matches(password, user.get().getPassword())) {
             throw new Exception("Contraseña incorrecta");
         }
         return user.get();

@@ -25,13 +25,13 @@ public class ServiceOrder {
     private String vehicleId;
     private String diagnostic;
     private String assignedTechnician;
-    private String laborValue;
+    private Double laborValue;
     private LocalDateTime dateService;
     private List<SparePartDetail> spareParts;
     private Status status;
 
     public ServiceOrder(String id, String clientId, String vehicleId, String diagnostic,
-                        String assignedTechnician, String laborValue, LocalDateTime dateService,
+                        String assignedTechnician, Double laborValue, LocalDateTime dateService,
                         List<SparePartDetail> spareParts, Status status) {
         this.id = id;
         this.clientId = clientId;
@@ -85,11 +85,11 @@ public class ServiceOrder {
         this.assignedTechnician = assignedTechnician;
     }
 
-    public String getLaborValue() {
+    public Double getLaborValue() {
         return laborValue;
     }
 
-    public void setLaborValue(String laborValue) {
+    public void setLaborValue(Double laborValue) {
         this.laborValue = laborValue;
     }
 
