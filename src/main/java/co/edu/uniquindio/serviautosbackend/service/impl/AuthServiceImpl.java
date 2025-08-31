@@ -3,8 +3,10 @@ package co.edu.uniquindio.serviautosbackend.service.impl;
 import co.edu.uniquindio.serviautosbackend.domain.models.User;
 import co.edu.uniquindio.serviautosbackend.dto.UserCreationDTO;
 import co.edu.uniquindio.serviautosbackend.repository.AuthRepository;
+import co.edu.uniquindio.serviautosbackend.repository.UserRepository;
 import co.edu.uniquindio.serviautosbackend.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -14,6 +16,12 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired
     private AuthRepository authRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public User createUser(UserCreationDTO user) {
@@ -40,6 +48,19 @@ public class AuthServiceImpl implements AuthService {
             throw new Exception("Contraseña incorrecta");
         }
         return user.get();
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return userRepository.findByEmail(email).isPresent();
+    }
+
+    @Override
+    public void updatePassword(String email, String newPassword) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
     }
 
 }

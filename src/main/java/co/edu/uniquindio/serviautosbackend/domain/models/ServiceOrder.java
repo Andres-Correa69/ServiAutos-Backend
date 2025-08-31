@@ -30,7 +30,90 @@ public class ServiceOrder {
     private List<SparePartDetail> spareParts;
     private Status status;
 
+    public ServiceOrder(String id, String clientId, String vehicleId, String diagnostic,
+                        String assignedTechnician, String laborValue, LocalDateTime dateService,
+                        List<SparePartDetail> spareParts, Status status) {
+        this.id = id;
+        this.clientId = clientId;
+        this.vehicleId = vehicleId;
+        this.diagnostic = diagnostic;
+        this.assignedTechnician = assignedTechnician;
+        this.laborValue = laborValue;
+        this.dateService = dateService;
+        this.spareParts = spareParts;
+        this.status = status;
+    }
 
 
+    public String getId() {
+        return id;
+    }
 
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getClientId() {
+        return clientId;
+    }
+
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
+
+    public String getVehicleId() {
+        return vehicleId;
+    }
+
+    public void setVehicleId(String vehicleId) {
+        this.vehicleId = vehicleId;
+    }
+
+    public String getDiagnostic() {
+        return diagnostic;
+    }
+
+    public void setDiagnostic(String diagnostic) {
+        this.diagnostic = diagnostic;
+    }
+
+    public String getAssignedTechnician() {
+        return assignedTechnician;
+    }
+
+    public void setAssignedTechnician(String assignedTechnician) {
+        this.assignedTechnician = assignedTechnician;
+    }
+
+    public String getLaborValue() {
+        return laborValue;
+    }
+
+    public void setLaborValue(String laborValue) {
+        this.laborValue = laborValue;
+    }
+
+    public LocalDateTime getDateService() {
+        return dateService;
+    }
+
+    public void setDateService(LocalDateTime dateService) {
+        this.dateService = dateService;
+    }
+
+    public List<SparePartDetail> getSpareParts() {
+        return spareParts;
+    }
+
+    public void setSpareParts(List<SparePartDetail> spareParts) {
+        this.spareParts = spareParts;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
 }

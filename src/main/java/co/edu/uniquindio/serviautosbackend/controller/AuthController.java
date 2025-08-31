@@ -1,20 +1,16 @@
 package co.edu.uniquindio.serviautosbackend.controller;
 
 import co.edu.uniquindio.serviautosbackend.domain.models.User;
-import co.edu.uniquindio.serviautosbackend.dto.AuthResponseDTO;
-import co.edu.uniquindio.serviautosbackend.dto.ResponseDTO;
-import co.edu.uniquindio.serviautosbackend.dto.LoginDTO;
-import co.edu.uniquindio.serviautosbackend.dto.UserCreationDTO;
+import co.edu.uniquindio.serviautosbackend.dto.*;
 import co.edu.uniquindio.serviautosbackend.service.AuthService;
+import co.edu.uniquindio.serviautosbackend.service.EmailService;
 import co.edu.uniquindio.serviautosbackend.service.JwtService;
+import co.edu.uniquindio.serviautosbackend.service.VerificationCodeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
 @RestController
@@ -24,6 +20,12 @@ public class AuthController {
 
     @Autowired
     private AuthService authService;
+
+    @Autowired
+    private EmailService emailService;
+
+    @Autowired
+    private VerificationCodeService verificationService;
 
     @Autowired
     private JwtService jwtService;
@@ -44,14 +46,106 @@ public class AuthController {
     }
 
 
-    @PostMapping("/signup")
-    public ResponseEntity<ResponseDTO> signup(@Valid @RequestBody UserCreationDTO userCreationDTO) {
+
+    @PostMapping("/signup/request")
+    public ResponseEntity<ResponseDTO> requestSignup(@Valid @RequestBody UserCreationDTO userCreationDTO) {
         try {
-            User createdUser = authService.createUser(userCreationDTO);
-            return new ResponseEntity<>(new ResponseDTO<>(false, "User Created", createdUser), HttpStatus.CREATED);
+            if (authService.existsByEmail(userCreationDTO.email())) {
+                return ResponseEntity.badRequest()
+                        .body(new ResponseDTO<>(true, "Email ya registrado", null));
+            }
+
+            String code = verificationService.generateCode(userCreationDTO.email(), userCreationDTO);
+            // 🔑 Guardar el usuario pendiente junto al email
+            verificationService.savePendingUser(userCreationDTO.email(), userCreationDTO);
+
+            EmailDTO emailDTO = EmailDTO.builder()
+                    .to(verificationService.getAdminEmail())
+                    .subject("Verificación nuevo usuario - ServiAutos")
+                    .body("Código de verificación para nuevo usuario (" +
+                            userCreationDTO.email() + "): " + code)
+                    .build();
+            emailService.sendEmail(emailDTO);
+
+            return ResponseEntity.ok(new ResponseDTO<>(false,
+                    "Solicitud enviada al administrador", null));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body( new ResponseDTO<>(true, e.getMessage(), null) );
+            return ResponseEntity.badRequest()
+                    .body(new ResponseDTO<>(true, e.getMessage(), null));
         }
     }
+
+
+    @PostMapping("/signup/verify")
+    public ResponseEntity<ResponseDTO> verifySignup(
+            @RequestParam String email,
+            @RequestParam String code) {
+        try {
+            if (!verificationService.validateCode(email, code)) {
+                return ResponseEntity.badRequest()
+                        .body(new ResponseDTO<>(true, "Código inválido o expirado", null));
+            }
+
+            UserCreationDTO pendingUser = verificationService.getPendingUser(email);
+            User createdUser = authService.createUser(pendingUser);
+
+            verificationService.removePendingUser(email);
+            
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new ResponseDTO<>(false, "Usuario creado exitosamente", createdUser));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new ResponseDTO<>(true, e.getMessage(), null));
+        }
+
+
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ResponseDTO> forgotPassword(@RequestParam String email) {
+        try {
+            if (!authService.existsByEmail(email)) {
+                return ResponseEntity.badRequest()
+                        .body(new ResponseDTO<>(true, "Email no encontrado", null));
+            }
+
+            String code = verificationService.generatePasswordResetCode(email);
+
+            EmailDTO emailDTO = EmailDTO.builder()
+                    .to(email)
+                    .subject("Recuperación de contraseña - ServiAutos")
+                    .body("Tu código de recuperación es: " + code)
+                    .build();
+            emailService.sendEmail(emailDTO);
+
+            return ResponseEntity.ok(new ResponseDTO<>(false,
+                    "Código enviado al correo", null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new ResponseDTO<>(true, e.getMessage(), null));
+        }
+    }
+
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<ResponseDTO> resetPassword(@RequestBody PasswordResetDTO resetDTO) {
+        try {
+            if (!verificationService.validatePasswordResetCode(
+                    resetDTO.getEmail(), resetDTO.getCode())) {
+                return ResponseEntity.badRequest()
+                        .body(new ResponseDTO<>(true, "Código inválido o expirado", null));
+            }
+
+            authService.updatePassword(resetDTO.getEmail(), resetDTO.getNewPassword());
+            return ResponseEntity.ok(new ResponseDTO<>(false,
+                    "Contraseña actualizada exitosamente", null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new ResponseDTO<>(true, e.getMessage(), null));
+        }
+    }
+
+
+
 
 }

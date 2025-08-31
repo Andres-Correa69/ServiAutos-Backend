@@ -21,4 +21,14 @@ public class EmailServiceImpl implements EmailService {
         message.setText(emailDTO.getBody());
         mailSender.send(message);
     }
+
+    @Override
+    public void sendVerificationCode(String to, String code, String subject) {
+        EmailDTO emailDTO = EmailDTO.builder()
+                .to(to)
+                .subject(subject)
+                .body("Tu código de verificación es: " + code)
+                .build();
+        sendEmail(emailDTO);
+    }
 }

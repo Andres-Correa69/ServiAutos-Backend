@@ -1,10 +1,13 @@
 package co.edu.uniquindio.serviautosbackend.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
+@Builder
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class EmailDTO {
     private String to;
     private String subject;
