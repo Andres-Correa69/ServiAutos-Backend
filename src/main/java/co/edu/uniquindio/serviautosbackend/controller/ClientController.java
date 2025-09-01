@@ -4,6 +4,7 @@ import co.edu.uniquindio.serviautosbackend.dto.ClientCreationDTO;
 import co.edu.uniquindio.serviautosbackend.dto.ClientDTO;
 import co.edu.uniquindio.serviautosbackend.service.ClientService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,7 +15,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ClientController {
 
-    private final ClientService clientService;
+    @Autowired
+    private ClientService clientService;
 
     @PostMapping
     public ResponseEntity<ClientDTO> create(@RequestBody ClientCreationDTO dto) {
