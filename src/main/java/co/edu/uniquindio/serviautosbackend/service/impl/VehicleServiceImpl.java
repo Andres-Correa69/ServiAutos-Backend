@@ -6,6 +6,7 @@ import co.edu.uniquindio.serviautosbackend.dto.VehicleDTO;
 import co.edu.uniquindio.serviautosbackend.repository.VehicleRepository;
 import co.edu.uniquindio.serviautosbackend.service.VehicleService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,7 +15,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class VehicleServiceImpl implements VehicleService {
 
-    private final VehicleRepository vehicleRepository;
+    @Autowired
+    private VehicleRepository vehicleRepository;
 
     @Override
     public VehicleDTO create(VehicleCreationDTO dto) {

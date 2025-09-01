@@ -6,6 +6,7 @@ import co.edu.uniquindio.serviautosbackend.dto.ClientDTO;
 import co.edu.uniquindio.serviautosbackend.repository.ClientRepository;
 import co.edu.uniquindio.serviautosbackend.service.ClientService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,7 +15,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ClientServiceImpl implements ClientService {
 
-    private final ClientRepository clientRepository;
+    @Autowired
+    private ClientRepository clientRepository;
 
     @Override
     public ClientDTO create(ClientCreationDTO dto) {
