@@ -7,6 +7,9 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.beans.factory.annotation.Value;
 import java.util.Properties;
+
+// Configuración comentada para Gmail - usar SendGrid en su lugar
+/*
 @Configuration
 @PropertySource("classpath:application.properties")
 public class EmailConfig {
@@ -42,3 +45,4 @@ public class EmailConfig {
         return mailSender;
     }
 }
+*/
