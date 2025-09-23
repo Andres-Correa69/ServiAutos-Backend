@@ -16,5 +16,8 @@ public interface ServiceOrderService {
     ServiceOrderDTO updateOrder(String id, ServiceOrderCreationDTO dto);
 
     void deleteOrder(String id);
+
+    ServiceOrderDTO attendOrder(String id, String technician);
+
 }
 

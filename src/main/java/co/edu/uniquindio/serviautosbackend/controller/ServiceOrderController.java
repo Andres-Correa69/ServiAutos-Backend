@@ -43,4 +43,12 @@ public class ServiceOrderController {
         serviceOrderService.deleteOrder(id);
         return ResponseEntity.noContent().build();
     }
+
+
+    @PutMapping("/{id}/attend")
+    public ResponseEntity<ServiceOrderDTO> attendOrder(@PathVariable String id) {
+        String defaultTechnician = "Tecnico 1";
+        return ResponseEntity.ok(serviceOrderService.attendOrder(id, defaultTechnician));
+    }
+
 }

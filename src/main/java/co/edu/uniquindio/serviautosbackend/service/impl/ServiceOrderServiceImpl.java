@@ -82,4 +82,30 @@ public class ServiceOrderServiceImpl implements ServiceOrderService {
                 order.getStatus()
         );
     }
+
+
+
+    @Override
+    public ServiceOrderDTO attendOrder(String id, String technician) {
+        ServiceOrder order = serviceOrderRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Orden no encontrada"));
+
+        order.setStatus(Status.FINALIZED);
+        order.setAssignedTechnician(technician); // si lo manejas fijo, quemado, puedes poner algo como "Técnico 1"
+        order.setDateService(LocalDateTime.now());
+
+        serviceOrderRepository.save(order);
+
+        return new ServiceOrderDTO(
+            order.getId(),
+            order.getClientId(),
+            order.getVehicleId(),
+            order.getDiagnostic(),
+            order.getAssignedTechnician(),
+            order.getLaborValue(),
+            order.getDateService(),
+            order.getStatus()
+        );
+    }
+
 }
