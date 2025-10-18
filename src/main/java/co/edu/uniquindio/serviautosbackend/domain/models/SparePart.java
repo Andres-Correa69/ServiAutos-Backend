@@ -19,16 +19,27 @@ public class SparePart {
     private String id;
     private String name;
     private String detail;
+    private String category;
+    private String brand;
+    private String partNumber;
     private Double unitValue;
     private Integer availableStock;
+    private Integer minimumStock;
+    private String location;
 
-    public SparePart(String id, String name, String detail,
-                     Double unitValue, Integer availableStock) {
+    public SparePart(String id, String name, String detail, String category, String brand,
+                     String partNumber, Double unitValue, Integer availableStock, 
+                     Integer minimumStock, String location) {
         this.id = id;
         this.name = name;
         this.detail = detail;
+        this.category = category;
+        this.brand = brand;
+        this.partNumber = partNumber;
         this.unitValue = unitValue;
         this.availableStock = availableStock;
+        this.minimumStock = minimumStock;
+        this.location = location;
     }
 
     public String getId() {
@@ -69,5 +80,45 @@ public class SparePart {
 
     public void setAvailableStock(Integer availableStock) {
         this.availableStock = availableStock;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public String getBrand() {
+        return brand;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+
+    public String getPartNumber() {
+        return partNumber;
+    }
+
+    public void setPartNumber(String partNumber) {
+        this.partNumber = partNumber;
+    }
+
+    public Integer getMinimumStock() {
+        return minimumStock;
+    }
+
+    public void setMinimumStock(Integer minimumStock) {
+        this.minimumStock = minimumStock;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 }

@@ -4,6 +4,6 @@ public record ServiceOrderCreationDTO(
         String clientId,
         String vehicleId,
         String diagnostic,
-        String assignedTechnician,
+        String assignedTechnicianId,
         Double laborValue
 ) {}

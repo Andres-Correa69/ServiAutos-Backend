@@ -1,5 +1,6 @@
 package co.edu.uniquindio.serviautosbackend.controller;
 
+import co.edu.uniquindio.serviautosbackend.dto.AddSparePartToOrderDTO;
 import co.edu.uniquindio.serviautosbackend.dto.ServiceOrderCreationDTO;
 import co.edu.uniquindio.serviautosbackend.dto.ServiceOrderDTO;
 import co.edu.uniquindio.serviautosbackend.service.ServiceOrderService;
@@ -46,9 +47,23 @@ public class ServiceOrderController {
 
 
     @PutMapping("/{id}/attend")
-    public ResponseEntity<ServiceOrderDTO> attendOrder(@PathVariable String id) {
-        String defaultTechnician = "Tecnico 1";
-        return ResponseEntity.ok(serviceOrderService.attendOrder(id, defaultTechnician));
+    public ResponseEntity<ServiceOrderDTO> attendOrder(@PathVariable String id, @RequestParam String technicianId) {
+        return ResponseEntity.ok(serviceOrderService.attendOrder(id, technicianId));
+    }
+
+    @PostMapping("/{id}/spare-parts")
+    public ResponseEntity<ServiceOrderDTO> addSparePartToOrder(@PathVariable String id, @RequestBody AddSparePartToOrderDTO dto) {
+        return ResponseEntity.ok(serviceOrderService.addSparePartToOrder(id, dto));
+    }
+
+    @DeleteMapping("/{id}/spare-parts/{sparePartId}")
+    public ResponseEntity<ServiceOrderDTO> removeSparePartFromOrder(@PathVariable String id, @PathVariable String sparePartId) {
+        return ResponseEntity.ok(serviceOrderService.removeSparePartFromOrder(id, sparePartId));
+    }
+
+    @PutMapping("/{id}/finalize")
+    public ResponseEntity<ServiceOrderDTO> finalizeOrder(@PathVariable String id) {
+        return ResponseEntity.ok(serviceOrderService.finalizeOrder(id));
     }
 
 }

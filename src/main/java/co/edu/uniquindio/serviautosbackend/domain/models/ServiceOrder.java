@@ -24,20 +24,20 @@ public class ServiceOrder {
     private String clientId;
     private String vehicleId;
     private String diagnostic;
-    private String assignedTechnician;
+    private String assignedTechnicianId;
     private Double laborValue;
     private LocalDateTime dateService;
     private List<SparePartDetail> spareParts;
     private Status status;
 
     public ServiceOrder(String id, String clientId, String vehicleId, String diagnostic,
-                        String assignedTechnician, Double laborValue, LocalDateTime dateService,
+                        String assignedTechnicianId, Double laborValue, LocalDateTime dateService,
                         List<SparePartDetail> spareParts, Status status) {
         this.id = id;
         this.clientId = clientId;
         this.vehicleId = vehicleId;
         this.diagnostic = diagnostic;
-        this.assignedTechnician = assignedTechnician;
+        this.assignedTechnicianId = assignedTechnicianId;
         this.laborValue = laborValue;
         this.dateService = dateService;
         this.spareParts = spareParts;
@@ -77,12 +77,12 @@ public class ServiceOrder {
         this.diagnostic = diagnostic;
     }
 
-    public String getAssignedTechnician() {
-        return assignedTechnician;
+    public String getAssignedTechnicianId() {
+        return assignedTechnicianId;
     }
 
-    public void setAssignedTechnician(String assignedTechnician) {
-        this.assignedTechnician = assignedTechnician;
+    public void setAssignedTechnicianId(String assignedTechnicianId) {
+        this.assignedTechnicianId = assignedTechnicianId;
     }
 
     public Double getLaborValue() {

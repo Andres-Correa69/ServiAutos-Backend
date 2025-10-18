@@ -9,7 +9,7 @@ public record ServiceOrderDTO(
         String clientId,
         String vehicleId,
         String diagnostic,
-        String assignedTechnician,
+        String assignedTechnicianId,
         Double laborValue,
         LocalDateTime dateService,
         Status status

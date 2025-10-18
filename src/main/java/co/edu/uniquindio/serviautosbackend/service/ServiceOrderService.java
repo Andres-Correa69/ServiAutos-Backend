@@ -1,5 +1,6 @@
 package co.edu.uniquindio.serviautosbackend.service;
 
+import co.edu.uniquindio.serviautosbackend.dto.AddSparePartToOrderDTO;
 import co.edu.uniquindio.serviautosbackend.dto.ServiceOrderCreationDTO;
 import co.edu.uniquindio.serviautosbackend.dto.ServiceOrderDTO;
 
@@ -18,6 +19,12 @@ public interface ServiceOrderService {
     void deleteOrder(String id);
 
     ServiceOrderDTO attendOrder(String id, String technician);
+
+    ServiceOrderDTO addSparePartToOrder(String orderId, AddSparePartToOrderDTO dto);
+
+    ServiceOrderDTO removeSparePartFromOrder(String orderId, String sparePartId);
+
+    ServiceOrderDTO finalizeOrder(String orderId);
 
 }
 
