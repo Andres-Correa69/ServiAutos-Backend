@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -52,23 +53,49 @@ public class ServiceOrderController {
     }
 
     @PostMapping("/{id}/spare-parts")
-    public ResponseEntity<ServiceOrderDTO> addSparePartToOrder(@PathVariable String id, @RequestBody AddSparePartToOrderDTO dto) {
+    public ResponseEntity<?> addSparePartToOrder(@PathVariable String id, @RequestBody AddSparePartToOrderDTO dto) {
         try {
+            // Debug: Log de los datos recibidos
+            System.out.println("DEBUG - Order ID: " + id);
+            System.out.println("DEBUG - DTO: " + dto);
+            System.out.println("DEBUG - SparePartId: " + (dto != null ? dto.sparePartId() : "null"));
+            System.out.println("DEBUG - Quantity: " + (dto != null ? dto.quantity() : "null"));
+            
             ServiceOrderDTO result = serviceOrderService.addSparePartToOrder(id, dto);
             return ResponseEntity.ok(result);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
+            System.out.println("DEBUG - Error: " + e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of(
+                "error", true,
+                "message", e.getMessage()
+            ));
         }
     }
 
     @DeleteMapping("/{id}/spare-parts/{sparePartId}")
-    public ResponseEntity<ServiceOrderDTO> removeSparePartFromOrder(@PathVariable String id, @PathVariable String sparePartId) {
-        return ResponseEntity.ok(serviceOrderService.removeSparePartFromOrder(id, sparePartId));
+    public ResponseEntity<?> removeSparePartFromOrder(@PathVariable String id, @PathVariable String sparePartId) {
+        try {
+            ServiceOrderDTO result = serviceOrderService.removeSparePartFromOrder(id, sparePartId);
+            return ResponseEntity.ok(result);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "error", true,
+                "message", e.getMessage()
+            ));
+        }
     }
 
     @PutMapping("/{id}/finalize")
-    public ResponseEntity<ServiceOrderDTO> finalizeOrder(@PathVariable String id) {
-        return ResponseEntity.ok(serviceOrderService.finalizeOrder(id));
+    public ResponseEntity<?> finalizeOrder(@PathVariable String id) {
+        try {
+            ServiceOrderDTO result = serviceOrderService.finalizeOrder(id);
+            return ResponseEntity.ok(result);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "error", true,
+                "message", e.getMessage()
+            ));
+        }
     }
 
 }
