@@ -105,8 +105,8 @@ public class ServiceOrderServiceImpl implements ServiceOrderService {
 
         serviceOrderRepository.save(order);
 
-        return new ServiceOrderDTO(
-            order.getId(),
+            return new ServiceOrderDTO(
+                order.getId(),
             order.getClientId(),
             order.getVehicleId(),
             order.getDiagnostic(),
