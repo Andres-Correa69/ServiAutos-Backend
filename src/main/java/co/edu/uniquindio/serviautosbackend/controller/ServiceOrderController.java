@@ -53,7 +53,12 @@ public class ServiceOrderController {
 
     @PostMapping("/{id}/spare-parts")
     public ResponseEntity<ServiceOrderDTO> addSparePartToOrder(@PathVariable String id, @RequestBody AddSparePartToOrderDTO dto) {
-        return ResponseEntity.ok(serviceOrderService.addSparePartToOrder(id, dto));
+        try {
+            ServiceOrderDTO result = serviceOrderService.addSparePartToOrder(id, dto);
+            return ResponseEntity.ok(result);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @DeleteMapping("/{id}/spare-parts/{sparePartId}")

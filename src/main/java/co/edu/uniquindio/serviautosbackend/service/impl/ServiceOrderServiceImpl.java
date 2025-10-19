@@ -117,6 +117,16 @@ public class ServiceOrderServiceImpl implements ServiceOrderService {
 
     @Override
     public ServiceOrderDTO addSparePartToOrder(String orderId, AddSparePartToOrderDTO dto) {
+        // Validar que el DTO no sea null
+        if (dto == null || dto.sparePartId() == null || dto.quantity() == null) {
+            throw new RuntimeException("Datos del repuesto inválidos");
+        }
+
+        // Validar cantidad positiva
+        if (dto.quantity() <= 0) {
+            throw new RuntimeException("La cantidad debe ser mayor a 0");
+        }
+
         ServiceOrder order = serviceOrderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Orden no encontrada"));
 
@@ -128,7 +138,7 @@ public class ServiceOrderServiceImpl implements ServiceOrderService {
                 .orElseThrow(() -> new RuntimeException("Repuesto no encontrado"));
 
         if (sparePart.getAvailableStock() < dto.quantity()) {
-            throw new RuntimeException("Stock insuficiente del repuesto");
+            throw new RuntimeException("Stock insuficiente del repuesto. Disponible: " + sparePart.getAvailableStock() + ", Solicitado: " + dto.quantity());
         }
 
         // Crear detalle del repuesto

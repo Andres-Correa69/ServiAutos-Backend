@@ -46,7 +46,8 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:4200",        // desarrollo local
-                "https://servi-autos-frontend.vercel.app"     // producción en Vercel
+                "https://servi-autos-frontend.vercel.app",     // producción en Vercel
+                "*"  // Permitir todos los orígenes para testing con Postman
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
