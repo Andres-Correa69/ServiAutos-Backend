@@ -14,7 +14,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
-
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -29,14 +28,9 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> {
-                    // Endpoints públicos
                     auth.requestMatchers("/api/auth/**").permitAll();
-                    
-
-                    // Todo lo demás requiere autenticación
                     auth.anyRequest().authenticated();
                 })
-                // Filtro JWT antes de UsernamePasswordAuthenticationFilter
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
@@ -44,19 +38,24 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
+        
+        // ✅ SOLUCIÓN: Remover "*" y listar orígenes específicos
         configuration.setAllowedOrigins(Arrays.asList(
-                "http://localhost:4200",        // desarrollo local
-                "https://servi-autos-frontend.vercel.app",     // producción en Vercel
-                "*"  // Permitir todos los orígenes para testing con Postman
+                "http://localhost:4200",
+                "http://localhost:8080",  // Para Postman en local
+                "https://servi-autos-frontend.vercel.app"
         ));
+        
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
+        
+        // ✅ Mantener credentials si tu frontend envía cookies/auth headers
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
+
+
     }
-
 }
-
