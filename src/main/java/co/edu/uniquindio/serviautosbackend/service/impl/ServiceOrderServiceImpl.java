@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -86,7 +87,8 @@ public class ServiceOrderServiceImpl implements ServiceOrderService {
                 order.getAssignedTechnicianId(),
                 order.getLaborValue(),
                 order.getDateService(),
-                order.getStatus()
+                order.getStatus(),
+                order.getSpareParts() != null ? order.getSpareParts() : new ArrayList<>()  // ✅ AGREGAR ESTA LÍNEA
         );
     }
 
@@ -111,7 +113,8 @@ public class ServiceOrderServiceImpl implements ServiceOrderService {
             order.getAssignedTechnicianId(),
             order.getLaborValue(),
             order.getDateService(),
-            order.getStatus()
+            order.getStatus(),
+            order.getSpareParts() != null ? order.getSpareParts() : new ArrayList<>()  // ✅ AGREGAR ESTA LÍNEA
         );
     }
 
@@ -121,44 +124,43 @@ public class ServiceOrderServiceImpl implements ServiceOrderService {
         if (dto == null || dto.sparePartId() == null || dto.quantity() == null) {
             throw new RuntimeException("Datos del repuesto inválidos");
         }
-
+    
         // Validar cantidad positiva
         if (dto.quantity() <= 0) {
             throw new RuntimeException("La cantidad debe ser mayor a 0");
         }
-
+    
         ServiceOrder order = serviceOrderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Orden no encontrada"));
-
+    
         if (order.getStatus() == Status.FINALIZED) {
             throw new RuntimeException("No se pueden agregar repuestos a una orden finalizada");
         }
-
+    
         SparePart sparePart = sparePartRepository.findById(dto.sparePartId())
                 .orElseThrow(() -> new RuntimeException("Repuesto no encontrado"));
-
+    
         if (sparePart.getAvailableStock() < dto.quantity()) {
             throw new RuntimeException("Stock insuficiente del repuesto. Disponible: " + sparePart.getAvailableStock() + ", Solicitado: " + dto.quantity());
         }
-
-        // Crear detalle del repuesto
+    
+        // ✅ ACTUALIZAR: Crear detalle del repuesto con los nombres correctos
         SparePartDetail detail = new SparePartDetail(
-                dto.sparePartId(),
-                sparePart.getName(),
-                dto.quantity(),
-                sparePart.getUnitValue()
+                dto.sparePartId(),      // idSparePart
+                sparePart.getName(),    // name
+                dto.quantity(),         // amount
+                sparePart.getUnitValue() // price
         );
-
+    
         // Agregar a la lista de repuestos de la orden
         if (order.getSpareParts() == null) {
             order.setSpareParts(new java.util.ArrayList<>());
         }
         order.getSpareParts().add(detail);
-
+    
         ServiceOrder updated = serviceOrderRepository.save(order);
         return mapToDTO(updated);
     }
-
     @Override
     public ServiceOrderDTO removeSparePartFromOrder(String orderId, String sparePartId) {
         ServiceOrder order = serviceOrderRepository.findById(orderId)

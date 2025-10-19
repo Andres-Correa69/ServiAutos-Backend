@@ -8,12 +8,13 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class SparePartDetail {
-
-    private String idSparePart;
+    private String idSparePart;  // ✅ Usar este nombre (no sparePartId)
     private String name;
-    private Integer amount;
-    private Double price;
+    private Integer amount;      // ✅ Usar este nombre (no quantity)
+    private Double price;        // ✅ Usar este nombre (no unitValue)
 
+
+    // Constructor completo
     public SparePartDetail(String idSparePart, String name, Integer amount, Double price) {
         this.idSparePart = idSparePart;
         this.name = name;
@@ -21,6 +22,7 @@ public class SparePartDetail {
         this.price = price;
     }
 
+    // Getters y Setters
     public String getIdSparePart() {
         return idSparePart;
     }
