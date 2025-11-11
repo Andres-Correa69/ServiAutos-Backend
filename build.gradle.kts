@@ -36,6 +36,11 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    
+    // Testcontainers para tests de integración con MongoDB
+    testImplementation("org.testcontainers:testcontainers:1.19.3")
+    testImplementation("org.testcontainers:mongodb:1.19.3")
+    testImplementation("org.testcontainers:junit-jupiter:1.19.3")
 }
 
 tasks.withType<Test> {
