@@ -14,7 +14,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(metricsInterceptor)
-                .excludePathPatterns("/actuator/**");
+                .excludePathPatterns("/actuator/**", "/health");
     }
 }
 

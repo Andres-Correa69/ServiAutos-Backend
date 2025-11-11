@@ -17,9 +17,9 @@ public class MetricsInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        // Excluir endpoints de actuator para evitar problemas
+        // Excluir endpoints de actuator y health check para evitar problemas
         String uri = request.getRequestURI();
-        if (uri != null && uri.startsWith("/actuator")) {
+        if (uri != null && (uri.startsWith("/actuator") || uri.equals("/health"))) {
             return true;
         }
         
@@ -33,9 +33,9 @@ public class MetricsInterceptor implements HandlerInterceptor {
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
         try {
-            // Excluir endpoints de actuator
+            // Excluir endpoints de actuator y health check
             String uri = request.getRequestURI();
-            if (uri != null && uri.startsWith("/actuator")) {
+            if (uri != null && (uri.startsWith("/actuator") || uri.equals("/health"))) {
                 return;
             }
             
