@@ -43,7 +43,8 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:4200",
                 "http://localhost:8080",  // Para Postman en local
-                "https://servi-autos-frontend.vercel.app"
+                "https://servi-autos-frontend.vercel.app",
+                "*"
         ));
         
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
