@@ -2,10 +2,173 @@
 	"info": {
 		"_postman_id": "serviautos-backend-collection",
 		"name": "ServiAutos Backend API",
-		"description": "Colección completa de APIs para el sistema ServiAutos Backend - Gestión de talleres automotrices",
+		"description": "Colección completa de APIs para el sistema ServiAutos Backend - Gestión de talleres automotrices\n\n## Variables de Entorno\n- `base_url`: URL base del API (Producción: https://serviautos-backend-production.up.railway.app)\n- `token`: Token JWT para autenticación (se captura automáticamente al hacer login)\n\n## Endpoints de Métricas\n- `/actuator/prometheus`: Métricas en formato Prometheus (formateadas automáticamente)\n- `/actuator/health`: Estado de salud de la aplicación\n- `/actuator/metrics`: Lista de métricas disponibles",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
+		{
+			"name": "📊 Métricas y Monitoreo",
+			"item": [
+				{
+					"name": "Obtener Métricas Prometheus",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/actuator/prometheus",
+							"host": ["{{base_url}}"],
+							"path": ["actuator", "prometheus"]
+						},
+						"description": "Obtiene las métricas de la aplicación en formato Prometheus. La respuesta se formatea automáticamente para mejor visualización.\n\n**Incluye métricas de:**\n- Peticiones HTTP (total, duración por endpoint)\n- Métricas de JVM (memoria, GC, CPU)\n- Métricas del sistema\n\n**Ver resultado formateado en la consola de Postman (View > Show Postman Console)**"
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const rawText = pm.response.text();",
+									"    const lines = rawText.split('\\n');",
+									"    ",
+									"    // Organizar métricas por categoría",
+									"    const categories = {",
+									"        '📈 HTTP Requests': [],",
+									"        '⏱️ HTTP Duration': [],",
+									"        '💾 JVM Memory': [],",
+									"        '🗑️ JVM GC': [],",
+									"        '🖥️ System': [],",
+									"        '📋 Other': []",
+									"    };",
+									"    ",
+									"    let currentCategory = '📋 Other';",
+									"    let currentMetric = '';",
+									"    ",
+									"    lines.forEach(line => {",
+									"        if (line.startsWith('# HELP')) {",
+									"            const match = line.match(/^# HELP (\\w+)/);",
+									"            if (match) {",
+									"                currentMetric = match[1];",
+									"                ",
+									"                if (currentMetric.includes('http_request') && currentMetric.includes('total')) {",
+									"                    currentCategory = '📈 HTTP Requests';",
+									"                } else if (currentMetric.includes('http_request') && currentMetric.includes('duration')) {",
+									"                    currentCategory = '⏱️ HTTP Duration';",
+									"                } else if (currentMetric.includes('jvm_memory')) {",
+									"                    currentCategory = '💾 JVM Memory';",
+									"                } else if (currentMetric.includes('jvm_gc')) {",
+									"                    currentCategory = '🗑️ JVM GC';",
+									"                } else if (currentMetric.includes('process_cpu') || currentMetric.includes('system')) {",
+									"                    currentCategory = '🖥️ System';",
+									"                } else {",
+									"                    currentCategory = '📋 Other';",
+									"                }",
+									"            }",
+									"        }",
+									"        ",
+									"        if (line.trim() !== '') {",
+									"            categories[currentCategory].push(line);",
+									"        }",
+									"    });",
+									"    ",
+									"    // Construir respuesta formateada",
+									"    let formattedOutput = '\\n' + '='.repeat(80) + '\\n';",
+									"    formattedOutput += '📊 MÉTRICAS PROMETHEUS - ORGANIZADAS\\n';",
+									"    formattedOutput += '='.repeat(80) + '\\n\\n';",
+									"    ",
+									"    Object.keys(categories).forEach(category => {",
+									"        if (categories[category].length > 0) {",
+									"            formattedOutput += `\\n${category}\\n`;",
+									"            formattedOutput += '-'.repeat(80) + '\\n';",
+									"            ",
+									"            // Agrupar por métrica",
+									"            let currentMetricGroup = '';",
+									"            categories[category].forEach(line => {",
+									"                if (line.startsWith('# HELP')) {",
+									"                    if (currentMetricGroup) formattedOutput += '\\n';",
+									"                    const metricName = line.match(/^# HELP (\\w+)/)?.[1] || '';",
+									"                    currentMetricGroup = metricName;",
+									"                    formattedOutput += `\\n  🔸 ${metricName}\\n`;",
+									"                }",
+									"                if (!line.startsWith('#')) {",
+									"                    // Formatear línea de métrica",
+									"                    const parts = line.split(' ');",
+									"                    if (parts.length >= 2) {",
+									"                        const metricLine = parts[0];",
+									"                        const value = parts[parts.length - 1];",
+									"                        formattedOutput += `    ${metricLine.padEnd(70)} ${value}\\n`;",
+									"                    } else {",
+									"                        formattedOutput += `    ${line}\\n`;",
+									"                    }",
+									"                } else if (line.startsWith('# TYPE')) {",
+									"                    formattedOutput += `    ${line}\\n`;",
+									"                }",
+									"            });",
+									"            formattedOutput += '\\n';",
+									"        }",
+									"    });",
+									"    ",
+									"    formattedOutput += '\\n' + '='.repeat(80) + '\\n';",
+									"    formattedOutput += `Total de líneas de métricas: ${rawText.split('\\n').filter(l => l.trim() && !l.startsWith('#')).length}\\n`;",
+									"    formattedOutput += '='.repeat(80) + '\\n';",
+									"    ",
+									"    console.log(formattedOutput);",
+									"    ",
+									"    pm.test('Métricas obtenidas correctamente', function () {",
+									"        pm.expect(pm.response.code).to.equal(200);",
+									"        pm.expect(rawText).to.include('http_requests');",
+									"    });",
+									"}"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/actuator/health",
+							"host": ["{{base_url}}"],
+							"path": ["actuator", "health"]
+						},
+						"description": "Verifica el estado de salud de la aplicación."
+					},
+					"response": []
+				},
+				{
+					"name": "Listar Métricas Disponibles",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/actuator/metrics",
+							"host": ["{{base_url}}"],
+							"path": ["actuator", "metrics"]
+						},
+						"description": "Lista todas las métricas disponibles en la aplicación."
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Métrica Específica",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/actuator/metrics/http.requests.total",
+							"host": ["{{base_url}}"],
+							"path": ["actuator", "metrics", "http.requests.total"]
+						},
+						"description": "Obtiene una métrica específica (ejemplo: total de peticiones HTTP). Cambia 'http.requests.total' por el nombre de la métrica que desees consultar."
+					},
+					"response": []
+				}
+			]
+		},
 		{
 			"name": "🔐 Autenticación",
 			"item": [
@@ -27,9 +190,27 @@
 							"raw": "{{base_url}}/api/auth/login",
 							"host": ["{{base_url}}"],
 							"path": ["api", "auth", "login"]
-						}
+						},
+						"description": "Inicia sesión en el sistema. Retorna un token JWT que se guarda automáticamente en la variable `token`.\n\n**Respuesta exitosa:**\n```json\n{\n    \"error\": false,\n    \"message\": \"Login successful\",\n    \"data\": {\n        \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n        \"message\": \"Login successful\"\n    }\n}\n```"
 					},
-					"response": []
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.data && jsonData.data.token) {",
+									"        pm.collectionVariables.set(\"token\", jsonData.data.token);",
+									"        console.log(\"✅ Token guardado automáticamente en variable 'token'\");",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
 				},
 				{
 					"name": "Solicitar Registro",
@@ -49,7 +230,8 @@
 							"raw": "{{base_url}}/api/auth/signup/request",
 							"host": ["{{base_url}}"],
 							"path": ["api", "auth", "signup", "request"]
-						}
+						},
+						"description": "Solicita el registro de un nuevo usuario. El código de verificación se envía al administrador.\n\n**Respuesta exitosa:**\n```json\n{\n    \"error\": false,\n    \"message\": \"Solicitud enviada al administrador\",\n    \"data\": null\n}\n```"
 					},
 					"response": []
 				},
@@ -72,7 +254,8 @@
 									"value": "123456"
 								}
 							]
-						}
+						},
+						"description": "Verifica el código de registro y crea el usuario.\n\n**Respuesta exitosa:**\n```json\n{\n    \"error\": false,\n    \"message\": \"Usuario creado exitosamente\",\n    \"data\": { ... }\n}\n```"
 					},
 					"response": []
 				},
@@ -91,7 +274,8 @@
 									"value": "admin@serviautos.com"
 								}
 							]
-						}
+						},
+						"description": "Solicita un código de recuperación de contraseña.\n\n**Respuesta exitosa:**\n```json\n{\n    \"error\": false,\n    \"message\": \"Código enviado al correo\",\n    \"data\": null\n}\n```"
 					},
 					"response": []
 				},
@@ -113,7 +297,8 @@
 							"raw": "{{base_url}}/api/auth/reset-password",
 							"host": ["{{base_url}}"],
 							"path": ["api", "auth", "reset-password"]
-						}
+						},
+						"description": "Restablece la contraseña usando el código de verificación.\n\n**Respuesta exitosa:**\n```json\n{\n    \"error\": false,\n    \"message\": \"Contraseña actualizada exitosamente\",\n    \"data\": null\n}\n```"
 					},
 					"response": []
 				}
@@ -144,7 +329,8 @@
 							"raw": "{{base_url}}/api/clients",
 							"host": ["{{base_url}}"],
 							"path": ["api", "clients"]
-						}
+						},
+						"description": "Crea un nuevo cliente en el sistema."
 					},
 					"response": []
 				},
@@ -162,7 +348,8 @@
 							"raw": "{{base_url}}/api/clients/{{client_id}}",
 							"host": ["{{base_url}}"],
 							"path": ["api", "clients", "{{client_id}}"]
-						}
+						},
+						"description": "Obtiene la información de un cliente específico por su ID."
 					},
 					"response": []
 				},
@@ -180,7 +367,8 @@
 							"raw": "{{base_url}}/api/clients",
 							"host": ["{{base_url}}"],
 							"path": ["api", "clients"]
-						}
+						},
+						"description": "Obtiene la lista de todos los clientes registrados."
 					},
 					"response": []
 				},
@@ -206,7 +394,8 @@
 							"raw": "{{base_url}}/api/clients/{{client_id}}",
 							"host": ["{{base_url}}"],
 							"path": ["api", "clients", "{{client_id}}"]
-						}
+						},
+						"description": "Actualiza la información de un cliente existente."
 					},
 					"response": []
 				},
@@ -224,7 +413,8 @@
 							"raw": "{{base_url}}/api/clients/{{client_id}}",
 							"host": ["{{base_url}}"],
 							"path": ["api", "clients", "{{client_id}}"]
-						}
+						},
+						"description": "Elimina un cliente del sistema. Retorna 204 No Content si es exitoso."
 					},
 					"response": []
 				}
@@ -255,7 +445,8 @@
 							"raw": "{{base_url}}/api/vehicles",
 							"host": ["{{base_url}}"],
 							"path": ["api", "vehicles"]
-						}
+						},
+						"description": "Crea un nuevo vehículo asociado a un cliente."
 					},
 					"response": []
 				},
@@ -273,7 +464,8 @@
 							"raw": "{{base_url}}/api/vehicles/{{vehicle_id}}",
 							"host": ["{{base_url}}"],
 							"path": ["api", "vehicles", "{{vehicle_id}}"]
-						}
+						},
+						"description": "Obtiene la información de un vehículo específico por su ID."
 					},
 					"response": []
 				},
@@ -291,7 +483,27 @@
 							"raw": "{{base_url}}/api/vehicles",
 							"host": ["{{base_url}}"],
 							"path": ["api", "vehicles"]
-						}
+						},
+						"description": "Obtiene la lista de todos los vehículos registrados."
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Vehículos por Cliente",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/vehicles/client/{{client_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "vehicles", "client", "{{client_id}}"]
+						},
+						"description": "Obtiene todos los vehículos asociados a un cliente específico."
 					},
 					"response": []
 				},
@@ -317,7 +529,8 @@
 							"raw": "{{base_url}}/api/vehicles/{{vehicle_id}}",
 							"host": ["{{base_url}}"],
 							"path": ["api", "vehicles", "{{vehicle_id}}"]
-						}
+						},
+						"description": "Actualiza la información de un vehículo existente."
 					},
 					"response": []
 				},
@@ -335,7 +548,8 @@
 							"raw": "{{base_url}}/api/vehicles/{{vehicle_id}}",
 							"host": ["{{base_url}}"],
 							"path": ["api", "vehicles", "{{vehicle_id}}"]
-						}
+						},
+						"description": "Elimina un vehículo del sistema."
 					},
 					"response": []
 				}
@@ -366,7 +580,8 @@
 							"raw": "{{base_url}}/api/technicians",
 							"host": ["{{base_url}}"],
 							"path": ["api", "technicians"]
-						}
+						},
+						"description": "Crea un nuevo técnico en el sistema."
 					},
 					"response": []
 				},
@@ -384,7 +599,8 @@
 							"raw": "{{base_url}}/api/technicians/{{technician_id}}",
 							"host": ["{{base_url}}"],
 							"path": ["api", "technicians", "{{technician_id}}"]
-						}
+						},
+						"description": "Obtiene la información de un técnico específico por su ID."
 					},
 					"response": []
 				},
@@ -402,7 +618,8 @@
 							"raw": "{{base_url}}/api/technicians",
 							"host": ["{{base_url}}"],
 							"path": ["api", "technicians"]
-						}
+						},
+						"description": "Obtiene la lista de todos los técnicos registrados."
 					},
 					"response": []
 				},
@@ -420,7 +637,8 @@
 							"raw": "{{base_url}}/api/technicians/active",
 							"host": ["{{base_url}}"],
 							"path": ["api", "technicians", "active"]
-						}
+						},
+						"description": "Obtiene solo los técnicos que están activos en el sistema."
 					},
 					"response": []
 				},
@@ -438,7 +656,8 @@
 							"raw": "{{base_url}}/api/technicians/specialization/Motor y Transmisión",
 							"host": ["{{base_url}}"],
 							"path": ["api", "technicians", "specialization", "Motor y Transmisión"]
-						}
+						},
+						"description": "Busca técnicos por su especialización."
 					},
 					"response": []
 				},
@@ -464,7 +683,8 @@
 							"raw": "{{base_url}}/api/technicians/{{technician_id}}",
 							"host": ["{{base_url}}"],
 							"path": ["api", "technicians", "{{technician_id}}"]
-						}
+						},
+						"description": "Actualiza la información de un técnico existente."
 					},
 					"response": []
 				},
@@ -482,7 +702,8 @@
 							"raw": "{{base_url}}/api/technicians/{{technician_id}}/activate",
 							"host": ["{{base_url}}"],
 							"path": ["api", "technicians", "{{technician_id}}", "activate"]
-						}
+						},
+						"description": "Activa un técnico que estaba desactivado."
 					},
 					"response": []
 				},
@@ -500,7 +721,8 @@
 							"raw": "{{base_url}}/api/technicians/{{technician_id}}/deactivate",
 							"host": ["{{base_url}}"],
 							"path": ["api", "technicians", "{{technician_id}}", "deactivate"]
-						}
+						},
+						"description": "Desactiva un técnico del sistema."
 					},
 					"response": []
 				},
@@ -518,7 +740,8 @@
 							"raw": "{{base_url}}/api/technicians/{{technician_id}}",
 							"host": ["{{base_url}}"],
 							"path": ["api", "technicians", "{{technician_id}}"]
-						}
+						},
+						"description": "Elimina un técnico del sistema."
 					},
 					"response": []
 				}
@@ -549,7 +772,8 @@
 							"raw": "{{base_url}}/api/inventory/spare-parts",
 							"host": ["{{base_url}}"],
 							"path": ["api", "inventory", "spare-parts"]
-						}
+						},
+						"description": "Crea un nuevo repuesto en el inventario."
 					},
 					"response": []
 				},
@@ -567,7 +791,8 @@
 							"raw": "{{base_url}}/api/inventory/spare-parts/{{spare_part_id}}",
 							"host": ["{{base_url}}"],
 							"path": ["api", "inventory", "spare-parts", "{{spare_part_id}}"]
-						}
+						},
+						"description": "Obtiene la información de un repuesto específico por su ID."
 					},
 					"response": []
 				},
@@ -585,7 +810,8 @@
 							"raw": "{{base_url}}/api/inventory/spare-parts",
 							"host": ["{{base_url}}"],
 							"path": ["api", "inventory", "spare-parts"]
-						}
+						},
+						"description": "Obtiene la lista de todos los repuestos en el inventario."
 					},
 					"response": []
 				},
@@ -603,7 +829,8 @@
 							"raw": "{{base_url}}/api/inventory/spare-parts/category/Filtros",
 							"host": ["{{base_url}}"],
 							"path": ["api", "inventory", "spare-parts", "category", "Filtros"]
-						}
+						},
+						"description": "Busca repuestos por categoría."
 					},
 					"response": []
 				},
@@ -621,7 +848,8 @@
 							"raw": "{{base_url}}/api/inventory/spare-parts/brand/Mann-Filter",
 							"host": ["{{base_url}}"],
 							"path": ["api", "inventory", "spare-parts", "brand", "Mann-Filter"]
-						}
+						},
+						"description": "Busca repuestos por marca."
 					},
 					"response": []
 				},
@@ -639,7 +867,8 @@
 							"raw": "{{base_url}}/api/inventory/spare-parts/low-stock",
 							"host": ["{{base_url}}"],
 							"path": ["api", "inventory", "spare-parts", "low-stock"]
-						}
+						},
+						"description": "Obtiene los repuestos que tienen stock por debajo del mínimo establecido."
 					},
 					"response": []
 				},
@@ -663,7 +892,8 @@
 									"value": "filtro"
 								}
 							]
-						}
+						},
+						"description": "Busca repuestos por nombre (búsqueda parcial)."
 					},
 					"response": []
 				},
@@ -689,7 +919,8 @@
 							"raw": "{{base_url}}/api/inventory/spare-parts/{{spare_part_id}}",
 							"host": ["{{base_url}}"],
 							"path": ["api", "inventory", "spare-parts", "{{spare_part_id}}"]
-						}
+						},
+						"description": "Actualiza la información de un repuesto existente."
 					},
 					"response": []
 				},
@@ -721,7 +952,8 @@
 									"value": "{{user_id}}"
 								}
 							]
-						}
+						},
+						"description": "Agrega stock a un repuesto existente."
 					},
 					"response": []
 				},
@@ -753,7 +985,8 @@
 									"value": "{{user_id}}"
 								}
 							]
-						}
+						},
+						"description": "Remueve stock de un repuesto existente."
 					},
 					"response": []
 				},
@@ -785,7 +1018,8 @@
 									"value": "{{user_id}}"
 								}
 							]
-						}
+						},
+						"description": "Ajusta el stock de un repuesto a una cantidad específica."
 					},
 					"response": []
 				},
@@ -803,7 +1037,8 @@
 							"raw": "{{base_url}}/api/inventory/spare-parts/{{spare_part_id}}/movements",
 							"host": ["{{base_url}}"],
 							"path": ["api", "inventory", "spare-parts", "{{spare_part_id}}", "movements"]
-						}
+						},
+						"description": "Obtiene el historial de movimientos de stock para un repuesto específico."
 					},
 					"response": []
 				},
@@ -821,7 +1056,8 @@
 							"raw": "{{base_url}}/api/inventory/movements",
 							"host": ["{{base_url}}"],
 							"path": ["api", "inventory", "movements"]
-						}
+						},
+						"description": "Obtiene el historial completo de todos los movimientos de stock."
 					},
 					"response": []
 				},
@@ -839,7 +1075,8 @@
 							"raw": "{{base_url}}/api/inventory/spare-parts/{{spare_part_id}}",
 							"host": ["{{base_url}}"],
 							"path": ["api", "inventory", "spare-parts", "{{spare_part_id}}"]
-						}
+						},
+						"description": "Elimina un repuesto del inventario."
 					},
 					"response": []
 				}
@@ -870,7 +1107,8 @@
 							"raw": "{{base_url}}/api/orders",
 							"host": ["{{base_url}}"],
 							"path": ["api", "orders"]
-						}
+						},
+						"description": "Crea una nueva orden de servicio."
 					},
 					"response": []
 				},
@@ -888,7 +1126,8 @@
 							"raw": "{{base_url}}/api/orders/{{order_id}}",
 							"host": ["{{base_url}}"],
 							"path": ["api", "orders", "{{order_id}}"]
-						}
+						},
+						"description": "Obtiene la información de una orden de servicio específica por su ID."
 					},
 					"response": []
 				},
@@ -906,7 +1145,8 @@
 							"raw": "{{base_url}}/api/orders",
 							"host": ["{{base_url}}"],
 							"path": ["api", "orders"]
-						}
+						},
+						"description": "Obtiene la lista de todas las órdenes de servicio."
 					},
 					"response": []
 				},
@@ -932,7 +1172,8 @@
 							"raw": "{{base_url}}/api/orders/{{order_id}}",
 							"host": ["{{base_url}}"],
 							"path": ["api", "orders", "{{order_id}}"]
-						}
+						},
+						"description": "Actualiza la información de una orden de servicio existente."
 					},
 					"response": []
 				},
@@ -956,7 +1197,8 @@
 									"value": "{{technician_id}}"
 								}
 							]
-						}
+						},
+						"description": "Asigna un técnico a una orden de servicio."
 					},
 					"response": []
 				},
@@ -982,7 +1224,8 @@
 							"raw": "{{base_url}}/api/orders/{{order_id}}/spare-parts",
 							"host": ["{{base_url}}"],
 							"path": ["api", "orders", "{{order_id}}", "spare-parts"]
-						}
+						},
+						"description": "Agrega un repuesto a una orden de servicio.\n\n**Respuesta exitosa:**\n```json\n{\n    \"id\": \"...\",\n    \"clientId\": \"...\",\n    \"vehicleId\": \"...\",\n    \"spareParts\": [...],\n    \"totalValue\": 250000.0\n}\n```\n\n**Respuesta con error:**\n```json\n{\n    \"error\": true,\n    \"message\": \"Mensaje de error\"\n}\n```"
 					},
 					"response": []
 				},
@@ -1000,7 +1243,8 @@
 							"raw": "{{base_url}}/api/orders/{{order_id}}/spare-parts/{{spare_part_id}}",
 							"host": ["{{base_url}}"],
 							"path": ["api", "orders", "{{order_id}}", "spare-parts", "{{spare_part_id}}"]
-						}
+						},
+						"description": "Remueve un repuesto de una orden de servicio."
 					},
 					"response": []
 				},
@@ -1018,7 +1262,8 @@
 							"raw": "{{base_url}}/api/orders/{{order_id}}/finalize",
 							"host": ["{{base_url}}"],
 							"path": ["api", "orders", "{{order_id}}", "finalize"]
-						}
+						},
+						"description": "Finaliza una orden de servicio. Esto crea automáticamente una garantía asociada."
 					},
 					"response": []
 				},
@@ -1036,7 +1281,8 @@
 							"raw": "{{base_url}}/api/orders/{{order_id}}",
 							"host": ["{{base_url}}"],
 							"path": ["api", "orders", "{{order_id}}"]
-						}
+						},
+						"description": "Elimina una orden de servicio del sistema."
 					},
 					"response": []
 				}
@@ -1059,7 +1305,8 @@
 							"raw": "{{base_url}}/api/warranties/{{warranty_id}}",
 							"host": ["{{base_url}}"],
 							"path": ["api", "warranties", "{{warranty_id}}"]
-						}
+						},
+						"description": "Obtiene la información de una garantía específica por su ID.\n\n**Respuesta exitosa:**\n```json\n{\n    \"error\": false,\n    \"message\": \"Garantía encontrada\",\n    \"data\": { ... }\n}\n```"
 					},
 					"response": []
 				},
@@ -1077,7 +1324,8 @@
 							"raw": "{{base_url}}/api/warranties/order/{{order_id}}",
 							"host": ["{{base_url}}"],
 							"path": ["api", "warranties", "order", "{{order_id}}"]
-						}
+						},
+						"description": "Obtiene la garantía asociada a una orden de servicio específica."
 					},
 					"response": []
 				},
@@ -1095,7 +1343,8 @@
 							"raw": "{{base_url}}/api/warranties",
 							"host": ["{{base_url}}"],
 							"path": ["api", "warranties"]
-						}
+						},
+						"description": "Obtiene la lista de todas las garantías."
 					},
 					"response": []
 				},
@@ -1113,7 +1362,8 @@
 							"raw": "{{base_url}}/api/warranties/client/{{client_id}}",
 							"host": ["{{base_url}}"],
 							"path": ["api", "warranties", "client", "{{client_id}}"]
-						}
+						},
+						"description": "Obtiene todas las garantías asociadas a un cliente específico."
 					},
 					"response": []
 				},
@@ -1131,7 +1381,8 @@
 							"raw": "{{base_url}}/api/warranties/status/OPEN",
 							"host": ["{{base_url}}"],
 							"path": ["api", "warranties", "status", "OPEN"]
-						}
+						},
+						"description": "Obtiene las garantías filtradas por estado (OPEN, ATTENDED, CLOSED)."
 					},
 					"response": []
 				},
@@ -1149,7 +1400,8 @@
 							"raw": "{{base_url}}/api/warranties/active",
 							"host": ["{{base_url}}"],
 							"path": ["api", "warranties", "active"]
-						}
+						},
+						"description": "Obtiene solo las garantías que están activas (no vencidas y no cerradas)."
 					},
 					"response": []
 				},
@@ -1167,7 +1419,8 @@
 							"raw": "{{base_url}}/api/warranties/expired",
 							"host": ["{{base_url}}"],
 							"path": ["api", "warranties", "expired"]
-						}
+						},
+						"description": "Obtiene las garantías que han vencido."
 					},
 					"response": []
 				},
@@ -1193,7 +1446,8 @@
 							"raw": "{{base_url}}/api/warranties/{{warranty_id}}",
 							"host": ["{{base_url}}"],
 							"path": ["api", "warranties", "{{warranty_id}}"]
-						}
+						},
+						"description": "Actualiza la información de una garantía existente."
 					},
 					"response": []
 				},
@@ -1221,7 +1475,8 @@
 									"value": "Garantía en proceso de atención"
 								}
 							]
-						}
+						},
+						"description": "Marca una garantía como atendida y asigna un técnico."
 					},
 					"response": []
 				},
@@ -1245,7 +1500,8 @@
 									"value": "Garantía resuelta exitosamente"
 								}
 							]
-						}
+						},
+						"description": "Cierra una garantía, marcándola como resuelta."
 					},
 					"response": []
 				},
@@ -1263,7 +1519,8 @@
 							"raw": "{{base_url}}/api/warranties/check-expired",
 							"host": ["{{base_url}}"],
 							"path": ["api", "warranties", "check-expired"]
-						}
+						},
+						"description": "Verifica y cierra automáticamente las garantías que han vencido."
 					},
 					"response": []
 				}
@@ -1294,7 +1551,8 @@
 							"raw": "{{base_url}}/api/email/send",
 							"host": ["{{base_url}}"],
 							"path": ["api", "email", "send"]
-						}
+						},
+						"description": "Envía un email usando SendGrid."
 					},
 					"response": []
 				}
@@ -1324,7 +1582,7 @@
 	"variable": [
 		{
 			"key": "base_url",
-			"value": "http://localhost:8080",
+			"value": "https://serviautos-backend-production.up.railway.app",
 			"type": "string"
 		},
 		{
