@@ -10,8 +10,10 @@ import co.edu.uniquindio.serviautosbackend.dto.ServiceOrderDTO;
 import co.edu.uniquindio.serviautosbackend.repository.ServiceOrderRepository;
 import co.edu.uniquindio.serviautosbackend.repository.SparePartRepository;
 import co.edu.uniquindio.serviautosbackend.service.ServiceOrderService;
+import co.edu.uniquindio.serviautosbackend.service.WarrantyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -27,6 +29,12 @@ public class ServiceOrderServiceImpl implements ServiceOrderService {
 
     @Autowired
     private SparePartRepository sparePartRepository;
+
+    @Autowired
+    private WarrantyService warrantyService;
+
+    @Value("${warranty.default-days:30}")
+    private Integer defaultWarrantyDays;
 
     @Override
     public ServiceOrderDTO createOrder(ServiceOrderCreationDTO dto) {
@@ -202,6 +210,21 @@ public class ServiceOrderServiceImpl implements ServiceOrderService {
         order.setDateService(LocalDateTime.now());
 
         ServiceOrder updated = serviceOrderRepository.save(order);
+        
+        // ✅ NUEVO: Crear garantía automáticamente al finalizar la orden
+        try {
+            warrantyService.createWarranty(
+                updated.getId(),
+                updated.getClientId(),
+                updated.getVehicleId(),
+                defaultWarrantyDays,
+                "Garantía creada automáticamente al finalizar la orden de servicio"
+            );
+        } catch (Exception e) {
+            // Log del error pero no fallar la finalización de la orden
+            System.err.println("Error al crear garantía: " + e.getMessage());
+        }
+        
         return mapToDTO(updated);
     }
 
