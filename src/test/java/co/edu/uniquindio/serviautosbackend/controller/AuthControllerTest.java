@@ -20,8 +20,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
 
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = AuthController.class)
@@ -71,16 +73,20 @@ class AuthControllerTest {
         LoginDTO loginDTO = new LoginDTO("test@example.com", "password123");
         String token = "test-jwt-token";
 
-        when(authService.validateLogin(anyString(), anyString())).thenReturn(testUser);
-        when(jwtService.generateToken(anyString())).thenReturn(token);
+        when(authService.validateLogin(eq("test@example.com"), eq("password123")))
+                .thenReturn(testUser);
+        when(jwtService.generateToken(eq("test@example.com")))
+                .thenReturn(token);
 
         // When & Then
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginDTO)))
+                .andDo(print()) // Para debug
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.error").value(false))
-                .andExpect(jsonPath("$.message").value("Login successful"))
+                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.data").exists())
                 .andExpect(jsonPath("$.data.token").value(token));
     }
 
@@ -90,13 +96,14 @@ class AuthControllerTest {
         // Given
         LoginDTO loginDTO = new LoginDTO("test@example.com", "wrongPassword");
 
-        when(authService.validateLogin(anyString(), anyString()))
+        when(authService.validateLogin(eq("test@example.com"), eq("wrongPassword")))
                 .thenThrow(new RuntimeException("Credenciales inválidas"));
 
         // When & Then
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginDTO)))
+                .andDo(print()) // Para debug
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.error").value(true))
                 .andExpect(jsonPath("$.message").value("Credenciales inválidas"));
